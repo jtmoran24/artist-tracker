@@ -6,6 +6,8 @@ detect a change → store an alert → email it → show it in the web feed →
 acknowledge). No entity merging, geo filtering, or multi-source dedup yet —
 that comes after this loop is proven.
 
+**Current status, live setup details, gotchas and next steps: see [ROADMAP.md](ROADMAP.md).**
+
 ## Layout
 
 - `web/` — Next.js app (feed, login). Deploy later; runs fine locally for now.
