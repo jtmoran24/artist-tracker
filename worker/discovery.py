@@ -1,28 +1,15 @@
-import re
+from typing import Optional
 
-import requests
-
-from adapters.generic_html import USER_AGENT
+from adapters import ticketmaster
 
 
-def slugify(artist_name: str) -> str:
-    slug = artist_name.lower().strip()
-    slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
-    return slug
-
-
-def discover_bandsintown_url(artist_name: str) -> str | None:
-    """Best-effort discovery: Bandsintown artist pages follow a predictable
-    /a/<slug> pattern. We just verify the guess resolves; this is the
-    'attempt source discovery on addition' step from the brief, not a
-    guarantee. Users can correct/add sources manually when this misses."""
-    candidate = f"https://www.bandsintown.com/a/{slugify(artist_name)}"
+def discover_ticketmaster_source(artist_name: str) -> Optional[ticketmaster.Attraction]:
+    """'Attempt source discovery on addition' step from the brief: look the
+    artist up on Ticketmaster by exact name. Not a guarantee of the right
+    act (two bands can share a name), so the match is stored as unconfirmed
+    and users can correct/add sources manually."""
     try:
-        response = requests.head(
-            candidate, headers={"User-Agent": USER_AGENT}, timeout=10, allow_redirects=True
-        )
-        if response.status_code == 200:
-            return candidate
-    except requests.RequestException:
-        pass
-    return None
+        return ticketmaster.find_attraction(artist_name)
+    except ticketmaster.TicketmasterError as exc:
+        print(f"ticketmaster lookup failed for {artist_name}: {exc}")
+        return None

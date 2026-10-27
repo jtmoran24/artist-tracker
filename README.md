@@ -30,11 +30,20 @@ that comes after this loop is proven.
 1. resend.com → sign up (free tier) → API Keys → create one.
 2. For real delivery you'd verify a domain, but for milestone 1 testing you can send from `onboarding@resend.dev` as `ALERT_FROM_EMAIL`.
 
-### 4. Add GitHub Actions secrets
-Repo → Settings → Secrets and variables → Actions → New repository secret, for each of:
-`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `RESEND_API_KEY`, `ALERT_FROM_EMAIL`, `ALERT_TO_EMAIL` (your own email, since there's no per-user routing yet).
+### 4. Get a Ticketmaster key
+developer.ticketmaster.com → sign up → My Apps. The Consumer Key is the
+`TICKETMASTER_API_KEY` (free tier: 5,000 calls/day, 5/sec).
 
-### 5. Seed the one artist to prove the loop
+### 5. Add GitHub Actions secrets
+Fill in `worker/.env` (gitignored), then upload it in one go:
+`gh secret set -f worker/.env`. Secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`,
+`RESEND_API_KEY`, `ALERT_FROM_EMAIL`, `ALERT_TO_EMAIL` (your own email, since
+there's no per-user routing yet), `TICKETMASTER_API_KEY`.
+
+Newer Supabase projects also need `supabase/migrations/0002_api_grants.sql`
+run after `0001_init.sql`, or the API can't see the tables (PGRST205).
+
+### 6. Seed the one artist to prove the loop
 After you've signed in once through the web app (so a row exists in `auth.users`), run in the Supabase SQL editor:
 
 ```sql
@@ -50,26 +59,26 @@ insert into user_artist_follows (user_id, artist_id)
 select '<your-user-id>', a.id from a;
 ```
 
-Leave `sources` empty — the worker's discovery step will try to find a
-Bandsintown page for the artist on its first run and insert one automatically.
-If it can't find one, insert a row into `sources` yourself with a URL you
-know changes (any artist tour/news page works for proving the loop).
+Leave `sources` empty — the worker's discovery step looks the artist up on
+Ticketmaster (exact name match) on its first run and inserts a `ticketmaster`
+source. If it can't find one, insert a `generic_html` source yourself with a
+URL you know changes (any artist tour/news page works).
 
-### 6. Local dev
+### 7. Local dev
 ```
 cd web
 cp .env.local.example .env.local   # fill in NEXT_PUBLIC_SUPABASE_URL / ANON_KEY
-npm run dev
+npm run dev                        # http://localhost:3001 (3000 is taken by Vibes)
 ```
 
-### 7. Run the worker once manually (don't wait 5 minutes)
-Repo → Actions → "artist-tracker-worker" → Run workflow. Check the logs for
-`baseline recorded for <artist>` on the first run — that's expected, no
-alert yet. Run it again after the source page changes (or after editing the
-page content yourself, if testing) to see `change detected` and an email.
+### 8. Run the worker once manually (don't wait for the schedule)
+`gh workflow run artist-tracker-worker`. Ticketmaster sources log
+`<artist>: N upcoming near your locations, M new`; every new show becomes an
+alert in the feed, and all of a run's new shows go out as one email.
 
 ## Known gaps (by design, for now)
 - One flat alert priority/no per-artist overrides yet.
-- No geo/relevance filtering yet (locations are stored but unused).
+- Geo filtering is Ticketmaster-only (radius around each active location).
+- No alerts for changes to already-seen events (reschedules, cancellations).
 - No merch pipeline yet, concert-only.
 - No multi-source merge/dedup for the same event yet.
