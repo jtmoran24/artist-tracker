@@ -27,6 +27,14 @@ emailed 7 shows (Oasis ×5 near Dublin/Boston, Geese ×2 in Boston).
   have RLS on with no policies, so the web app reads/writes them server-side
   with `SUPABASE_SERVICE_KEY` after checking the signed-in user.
   `web/.env.local` needs that plus `TICKETMASTER_API_KEY` (both server-only).
+- **Look:** vaporwave, forest-green edition — one fixed dark theme. Colours
+  and the shared classes (`.panel`, `.btn`, `.btn-primary`, `.btn-danger`,
+  `.input`, `.chip`, `.pixel`, `.vapor-heading`, `.vapor-sun`,
+  `.vapor-grid`) live in `web/src/app/globals.css`. Feed alerts render as
+  ticket-stub cards from the linked `events` row.
+  Background is a pine-forest skyline (`components/Skyline.tsx`) over the
+  grid; an LED ticker under the nav and the feed side panels (up next,
+  stats, ticket sales) share `utils/shows.ts`.
 - **Secrets:** live in `worker/.env` (gitignored) and GitHub Actions secrets.
   Re-upload after editing: `gh secret set -f C:/Users/johnm/artist-tracker/worker/.env`
   (forward slashes — backslashes get eaten by the `!` shell).
@@ -50,17 +58,15 @@ emailed 7 shows (Oasis ×5 near Dublin/Boston, Geese ×2 in Boston).
   `gh workflow run artist-tracker-worker`. Node is available.
 
 ## Next up (suggested order)
-1. **Styling** — feed, artists and locations pages are bare black/white, and
-   the black buttons disappear in dark mode.
-2. **Reschedule/cancellation alerts** — compare stored events against
+1. **Reschedule/cancellation alerts** — compare stored events against
    Ticketmaster's current `dates.status` / `localDate` on each run and alert on
    changes (currently already-seen events are ignored).
-3. **Local-time sale times** — emails show presale/on-sale in UTC.
-4. **Confirm discovered identities** — following from search marks the match
+2. **Local-time sale times** — emails show presale/on-sale in UTC.
+3. **Confirm discovered identities** — following from search marks the match
    confirmed, but the 5 seeded artists still say "auto-detected". A wrong
    match can be fixed today by unfollowing and following the right act from
    search; a one-click "confirm" would be nicer.
-5. **Alerts for shows found before you followed** — the worker only alerts on
+4. **Alerts for shows found before you followed** — the worker only alerts on
    events it hasn't stored yet, so a new follower of an artist someone else
    already follows won't hear about shows already found.
 

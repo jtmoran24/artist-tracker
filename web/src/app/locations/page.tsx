@@ -14,14 +14,9 @@ type Location = {
   active: boolean;
 };
 
-const buttonClass = "rounded-md border px-3 py-1 text-sm disabled:opacity-40";
-const primaryButtonClass =
-  "rounded-md bg-black px-3 py-1 text-sm text-white disabled:opacity-40";
-const selectClass = "rounded-md border px-2 py-1 text-sm";
-
 function RadiusSelect({ defaultValue }: { defaultValue: number }) {
   return (
-    <select name="radius_km" defaultValue={defaultValue} className={selectClass}>
+    <select name="radius_km" defaultValue={defaultValue} aria-label="Alert radius" className="input">
       {RADIUS_OPTIONS_KM.map((km) => (
         <option key={km} value={km}>
           {km} km
@@ -53,10 +48,10 @@ export default async function LocationsPage(props: PageProps<"/locations">) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl p-6">
-      <h1 className="mb-1 text-2xl font-semibold">Locations</h1>
-      <p className="mb-4 text-sm text-gray-500">
-        You get alerts for shows within the radius of any active location.
+    <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
+      <h1 className="vapor-heading mb-1 text-4xl">Locations</h1>
+      <p className="pixel mb-6 text-xl text-sage">
+        ロケーション · alerts cover shows within the radius of any active location
       </p>
 
       <Form action="/locations" className="flex gap-2">
@@ -64,35 +59,36 @@ export default async function LocationsPage(props: PageProps<"/locations">) {
           name="q"
           defaultValue={query}
           placeholder="Search for a city"
-          className="flex-1 rounded-md border px-3 py-2"
+          className="input min-w-0 flex-1"
         />
-        <button type="submit" className={primaryButtonClass}>
+        <button type="submit" className="btn btn-primary">
           Search
         </button>
       </Form>
 
       {query && (
         <section className="mt-4">
+          <h2 className="pixel mb-2 text-xl text-cyan">search results</h2>
           {searchError ? (
-            <p className="text-red-600">{searchError}</p>
+            <p className="panel p-4 text-pink">{searchError}</p>
           ) : places.length === 0 ? (
-            <p className="text-gray-500">No places found for “{query}”.</p>
+            <p className="panel p-4 text-sage">No places found for “{query}”.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {places.map((place) => (
-                <li key={place.id} className="rounded-md border p-3">
-                  <form action={addLocation} className="flex items-center gap-3">
+                <li key={place.id} className="panel p-3">
+                  <form action={addLocation} className="flex flex-wrap items-center gap-3">
                     <input type="hidden" name="name" value={place.name} />
                     <input type="hidden" name="latitude" value={place.latitude} />
                     <input type="hidden" name="longitude" value={place.longitude} />
-                    <div className="flex-1">
-                      <div className="font-medium">{place.name}</div>
-                      <div className="text-xs text-gray-500">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-pale">{place.name}</div>
+                      <div className="pixel text-lg text-sage">
                         {[place.region, place.country].filter(Boolean).join(", ")}
                       </div>
                     </div>
                     <RadiusSelect defaultValue={50} />
-                    <SubmitButton className={primaryButtonClass} pendingText="Adding…">
+                    <SubmitButton className="btn btn-primary" pendingText="…">
                       Add
                     </SubmitButton>
                   </form>
@@ -103,12 +99,12 @@ export default async function LocationsPage(props: PageProps<"/locations">) {
         </section>
       )}
 
-      <section className="mt-8">
-        <h2 className="mb-2 text-lg font-semibold">
+      <section className="mt-10">
+        <h2 className="vapor-heading mb-3 text-2xl">
           Your locations ({locations?.length ?? 0})
         </h2>
         {!locations || locations.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="panel p-6 text-sage">
             No locations yet. Search above to add one.
           </p>
         ) : (
@@ -116,25 +112,23 @@ export default async function LocationsPage(props: PageProps<"/locations">) {
             {locations.map((location) => (
               <li
                 key={location.id}
-                className="flex flex-wrap items-center gap-3 rounded-md border p-3"
+                className="panel flex flex-wrap items-center gap-3 p-3"
               >
-                <div className={`flex-1 ${location.active ? "" : "opacity-50"}`}>
-                  <div className="font-medium">
+                <div className={`min-w-0 flex-1 ${location.active ? "" : "opacity-50"}`}>
+                  <div className="font-semibold text-pale">
                     {location.name}
                     {!location.active && (
-                      <span className="ml-2 text-xs uppercase text-gray-500">
-                        paused
-                      </span>
+                      <span className="chip ml-2 text-pink">paused</span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="pixel text-lg text-sage">
                     {location.latitude.toFixed(2)}, {location.longitude.toFixed(2)}
                   </div>
                 </div>
                 <form action={updateLocation} className="flex gap-1">
                   <input type="hidden" name="locationId" value={location.id} />
                   <RadiusSelect defaultValue={Number(location.radius_km)} />
-                  <SubmitButton className={buttonClass} pendingText="Saving…">
+                  <SubmitButton className="btn" pendingText="…">
                     Save
                   </SubmitButton>
                 </form>
@@ -145,13 +139,13 @@ export default async function LocationsPage(props: PageProps<"/locations">) {
                     name="active"
                     value={location.active ? "false" : "true"}
                   />
-                  <SubmitButton className={buttonClass}>
+                  <SubmitButton className="btn">
                     {location.active ? "Pause" : "Resume"}
                   </SubmitButton>
                 </form>
                 <form action={deleteLocation}>
                   <input type="hidden" name="locationId" value={location.id} />
-                  <SubmitButton className={buttonClass} pendingText="Removing…">
+                  <SubmitButton className="btn btn-danger" pendingText="…">
                     Remove
                   </SubmitButton>
                 </form>

@@ -12,12 +12,20 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <h1 className="text-2xl font-semibold">Artist Tracker</h1>
-      <button
-        onClick={handleGoogleLogin}
-        className="rounded-md bg-black px-4 py-2 text-white"
-      >
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-4 text-center">
+      <div className="vapor-sun w-56 sm:w-72" aria-hidden />
+      <div>
+        <h1 className="vapor-heading text-4xl leading-tight sm:text-6xl">
+          ＡＲＴＩＳＴ
+          <br />
+          ＴＲＡＣＫＥＲ
+        </h1>
+        <p className="pixel mt-3 text-xl text-pink">アーティスト・トラッカー</p>
+        <p className="mt-2 text-sm text-sage">
+          Know the moment your artists announce a show near you.
+        </p>
+      </div>
+      <button onClick={handleGoogleLogin} className="btn btn-primary text-xl">
         Sign in with Google
       </button>
     </main>
