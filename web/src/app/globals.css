@@ -183,8 +183,8 @@ body::after {
 .vapor-sun {
   aspect-ratio: 1;
   border-radius: 9999px;
-  background: linear-gradient(180deg, #f4ffc9 0%, var(--mint) 40%, #2fbf87 70%, var(--pink) 100%);
-  box-shadow: 0 0 60px rgba(125, 255, 179, 0.35);
+  background: linear-gradient(180deg, #ffe3f6 0%, #ff9be5 35%, var(--pink) 70%, #d9469f 100%);
+  box-shadow: 0 0 60px rgba(255, 122, 217, 0.35);
   mask-image: linear-gradient(
     180deg,
     black 0 52%, transparent 52% 56%,

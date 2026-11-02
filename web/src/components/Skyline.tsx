@@ -3,9 +3,20 @@
 const WIDTH = 1600;
 const HEIGHT = 400;
 const CENTER = WIDTH / 2;
-// Low edge sits just above the middle peaks (back range is ~290 there); top
-// edge just inside the viewBox so it clears the nav on wide screens.
-const SUN = { cy: 145, r: 140 };
+// Setting sun: roughly the bottom quarter sinks behind the middle peaks (back
+// range is ~290-325 there), and the top stays clear of the nav.
+const SUN = { cy: 225, r: 150 };
+
+// Gaps cut across the lower half of the sun, thickening toward the horizon.
+const sunStripes: [number, number][] = [
+  [190, 3],
+  [210, 5],
+  [232, 7],
+  [256, 9],
+  [282, 11],
+  [310, 13],
+  [340, 15],
+];
 
 // Seeded so the forest is identical on every render (no hydration drift).
 function seededRandom(seed: number) {
@@ -76,6 +87,12 @@ export function Skyline() {
             <stop offset="70%" stopColor="#ff7ad9" />
             <stop offset="100%" stopColor="#d9469f" />
           </linearGradient>
+          <mask id="skyline-sun-stripes">
+            <rect width={WIDTH} height={HEIGHT} fill="white" />
+            {sunStripes.map(([y, h]) => (
+              <rect key={y} x="0" y={y} width={WIDTH} height={h} fill="black" />
+            ))}
+          </mask>
           <filter id="skyline-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="28" />
           </filter>
@@ -89,7 +106,13 @@ export function Skyline() {
           opacity="0.3"
           filter="url(#skyline-glow)"
         />
-        <circle cx={CENTER} cy={SUN.cy} r={SUN.r} fill="url(#skyline-sun)" />
+        <circle
+          cx={CENTER}
+          cy={SUN.cy}
+          r={SUN.r}
+          fill="url(#skyline-sun)"
+          mask="url(#skyline-sun-stripes)"
+        />
 
         <polygon
           points={backRange}
