@@ -1,8 +1,11 @@
-// Decorative horizon: a striped sun setting behind wireframe mountains and
-// a pine forest. Fixed behind the page where the grid floor fades out.
+// Decorative horizon: a pink sun hanging over wireframe mountains and a pine
+// forest. Fixed behind the page, standing on the grid floor's far edge.
 const WIDTH = 1600;
 const HEIGHT = 400;
 const CENTER = WIDTH / 2;
+// Low edge sits just above the middle peaks (back range is ~290 there); top
+// edge just inside the viewBox so it clears the nav on wide screens.
+const SUN = { cy: 145, r: 140 };
 
 // Seeded so the forest is identical on every render (no hydration drift).
 function seededRandom(seed: number) {
@@ -54,49 +57,39 @@ const backRange =
 const frontRange =
   "0,400 0,340 120,300 220,345 330,295 450,350 560,322 680,362 800,348 920,362 1040,315 1150,350 1270,300 1380,340 1490,305 1600,335 1600,400";
 
-// Gaps cut across the lower half of the sun, thickening toward the horizon.
-const sunStripes: [number, number][] = [
-  [292, 5],
-  [312, 7],
-  [334, 9],
-  [358, 12],
-  [384, 16],
-];
-
 export function Skyline() {
   return (
     <div className="vapor-skyline" aria-hidden>
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         preserveAspectRatio="xMidYMax slice"
+        // "slice" scales to fill the width and anchors at the bottom, so on
+        // wide screens the top of the scene would be cropped. Let it spill
+        // upward instead.
+        overflow="visible"
         className="h-full w-full"
       >
         <defs>
           <linearGradient id="skyline-sun" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f4ffc9" />
-            <stop offset="40%" stopColor="#7dffb3" />
-            <stop offset="72%" stopColor="#2fbf87" />
-            <stop offset="100%" stopColor="#ff7ad9" />
+            <stop offset="0%" stopColor="#ffe3f6" />
+            <stop offset="35%" stopColor="#ff9be5" />
+            <stop offset="70%" stopColor="#ff7ad9" />
+            <stop offset="100%" stopColor="#d9469f" />
           </linearGradient>
-          <mask id="skyline-sun-stripes">
-            <rect width={WIDTH} height={HEIGHT} fill="white" />
-            {sunStripes.map(([y, h]) => (
-              <rect key={y} x="0" y={y} width={WIDTH} height={h} fill="black" />
-            ))}
-          </mask>
           <filter id="skyline-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="28" />
           </filter>
         </defs>
 
-        <circle cx={CENTER} cy="300" r="215" fill="#7dffb3" opacity="0.25" filter="url(#skyline-glow)" />
         <circle
           cx={CENTER}
-          cy="300"
-          r="200"
-          fill="url(#skyline-sun)"
-          mask="url(#skyline-sun-stripes)"
+          cy={SUN.cy}
+          r={SUN.r + 15}
+          fill="#ff7ad9"
+          opacity="0.3"
+          filter="url(#skyline-glow)"
         />
+        <circle cx={CENTER} cy={SUN.cy} r={SUN.r} fill="url(#skyline-sun)" />
 
         <polygon
           points={backRange}
