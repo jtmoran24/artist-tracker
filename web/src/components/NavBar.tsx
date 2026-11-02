@@ -11,7 +11,7 @@ export async function NavBar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-mint/20 bg-forest-950/80 backdrop-blur-md">
-      <nav className="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
+      <nav className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
         <Link href="/feed" className="flex items-center gap-2">
           <div className="vapor-sun w-7" aria-hidden />
           <span className="vapor-heading text-lg">ＡＲＴＩＳＴ　ＴＲＡＣＫＥＲ</span>
