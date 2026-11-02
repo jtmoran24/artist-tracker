@@ -24,7 +24,7 @@ export default async function FeedPage() {
       <h1 className="mb-4 text-2xl font-semibold">Feed</h1>
       {!alerts || alerts.length === 0 ? (
         <p className="text-gray-500">
-          No alerts yet. The worker checks your followed artists' sources on
+          No alerts yet. The worker checks your followed artists&apos; sources on
           a schedule and alerts will show up here when something changes.
         </p>
       ) : (

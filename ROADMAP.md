@@ -1,6 +1,6 @@
 # Roadmap & status
 
-## Where things stand (2026-10-27)
+## Where things stand (2026-11-02)
 
 Milestone 1 loop is **working end to end**: sign in → follow artists → worker
 (GitHub Actions) finds shows on Ticketmaster near your locations → stores
@@ -21,13 +21,18 @@ emailed 7 shows (Oasis ×5 near Dublin/Boston, Geese ×2 in Boston).
 - **Email:** Resend, sending from `onboarding@resend.dev` (test sender — only
   delivers to the Resend account's own address).
 - **Events:** Ticketmaster Discovery API (free tier, ~10 calls per run).
+- **Web app:** `/feed`, `/artists` (search Ticketmaster, follow, pause,
+  unfollow), `/locations` (Open-Meteo city search, radius, pause, remove).
+  The shared catalogue tables (artists, sources, artist_identities, events)
+  have RLS on with no policies, so the web app reads/writes them server-side
+  with `SUPABASE_SERVICE_KEY` after checking the signed-in user.
+  `web/.env.local` needs that plus `TICKETMASTER_API_KEY` (both server-only).
 - **Secrets:** live in `worker/.env` (gitignored) and GitHub Actions secrets.
   Re-upload after editing: `gh secret set -f C:/Users/johnm/artist-tracker/worker/.env`
   (forward slashes — backslashes get eaten by the `!` shell).
 - **Seeded data:** one user (jtmoran24@gmail.com); locations Dublin + Boston
   (50 km); follows: ear, Oasis, Phantogram, Geese, Cameron Winter.
-  Artists/follows/locations are still added by hand (SQL or REST with the
-  secret key) — there's no UI for it yet.
+  Follows and locations are now managed in the web app.
 
 ### Gotchas we hit
 - **Port 3000 is Vibes** (pm2). The web app dev server is pinned to 3001.
@@ -45,16 +50,19 @@ emailed 7 shows (Oasis ×5 near Dublin/Boston, Geese ×2 in Boston).
   `gh workflow run artist-tracker-worker`. Node is available.
 
 ## Next up (suggested order)
-1. **Reschedule/cancellation alerts** — compare stored events against
+1. **Styling** — feed, artists and locations pages are bare black/white, and
+   the black buttons disappear in dark mode.
+2. **Reschedule/cancellation alerts** — compare stored events against
    Ticketmaster's current `dates.status` / `localDate` on each run and alert on
    changes (currently already-seen events are ignored).
-2. **Follow/unfollow artists from the web app** (search Ticketmaster
-   attractions, confirm the right match, insert artist + follow). Will need
-   RLS read policies on `artists` / `sources` / `events` for authenticated users.
 3. **Local-time sale times** — emails show presale/on-sale in UTC.
-4. **Feed styling** — currently bare black/white.
-5. **Confirm discovered identities** — `artist_identities` rows are stored as
-   `unconfirmed`; let the user confirm/replace a Ticketmaster match.
+4. **Confirm discovered identities** — following from search marks the match
+   confirmed, but the 5 seeded artists still say "auto-detected". A wrong
+   match can be fixed today by unfollowing and following the right act from
+   search; a one-click "confirm" would be nicer.
+5. **Alerts for shows found before you followed** — the worker only alerts on
+   events it hasn't stored yet, so a new follower of an artist someone else
+   already follows won't hear about shows already found.
 
 ## Later
 - Per-user email routing (everything goes to `ALERT_TO_EMAIL` today).

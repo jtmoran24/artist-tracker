@@ -26,3 +26,12 @@ export async function createClient() {
     }
   );
 }
+
+// For server actions and pages: actions are reachable by direct POST, so
+// each one checks the user itself rather than trusting proxy.ts.
+export async function requireUser() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) throw new Error("Not signed in");
+  return { supabase, user: data.user };
+}
