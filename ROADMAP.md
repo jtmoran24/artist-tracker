@@ -57,7 +57,47 @@ emailed 7 shows (Oasis ×5 near Dublin/Boston, Geese ×2 in Boston).
 - No local Python on this machine; the worker is tested via
   `gh workflow run artist-tracker-worker`. Node is available.
 
-## Next up (suggested order)
+## ▶ Next session — start here (agreed 2026-11-02)
+Do these in order:
+
+1. **Deploy the web app to Vercel** so it works away from this PC (phone,
+   links from emails). Steps:
+   - Vercel project from this repo, root directory `web/`.
+   - Env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+     `SUPABASE_SERVICE_KEY`, `TICKETMASTER_API_KEY` (values in
+     `web/.env.local`; the last two must stay server-only).
+   - Add the deployed URL to Supabase Auth → Site URL / redirect URLs, and to
+     the Google OAuth client's authorised origins + redirect URIs.
+   - The user has to sign in to Vercel/Google/Supabase dashboards themselves.
+   - Later: publish the Google app out of testing mode for other users.
+2. **One-click Spotify import of follows** — pull the user's followed and
+   top artists from Spotify, match each to a Ticketmaster attraction, and
+   follow it with `origin = 'spotify_import'` (column already exists on
+   `user_artist_follows`). Show the matches for review before following.
+   Spotify app credentials: the user also runs Spotify Vibes (separate
+   project on port 3000, same Supabase account) — check whether its Spotify
+   developer app can be reused or a new one is needed.
+
+## Also requested (2026-11-02)
+- **Collapse repeat dates of the same run.** Multi-night stands show as
+  separate cards/rows today — e.g. Geese at Roadrunner, Boston on Tue 10 and
+  Wed 11 Nov, and Oasis ×3 at Gillette / ×2 at Slane. Group by artist + venue
+  (or artist + city) into one entry like "Geese · Roadrunner, Boston ·
+  10–11 Nov (2 nights)", with each night's ticket link still reachable.
+  Applies to the feed cards, the ticker, `tickets.exe`, the "next near you"
+  line on /artists, and ideally the digest email too. Keep the events table
+  one row per night; group at display time (`web/src/utils/shows.ts` is the
+  shared place for the web side).
+- **Full Spotify link with recommendations.** Beyond importing follows (#2
+  above): connect Spotify with listening-history scopes (`user-top-read`,
+  `user-read-recently-played`, `user-follow-read`) and use top/recent
+  artists to *suggest* bands the user would want to see — e.g. heavily played
+  but not yet followed, and related artists with shows near the user's
+  locations. Show them as suggestions with a one-click follow, not
+  auto-follows. Needs Spotify OAuth tokens stored per user (refresh token,
+  server-side only) and probably a worker step to refresh suggestions.
+
+## Backlog
 1. **Reschedule/cancellation alerts** — compare stored events against
    Ticketmaster's current `dates.status` / `localDate` on each run and alert on
    changes (currently already-seen events are ignored).
@@ -69,11 +109,10 @@ emailed 7 shows (Oasis ×5 near Dublin/Boston, Geese ×2 in Boston).
 4. **Alerts for shows found before you followed** — the worker only alerts on
    events it hasn't stored yet, so a new follower of an artist someone else
    already follows won't hear about shows already found.
+5. **Vaporwave HTML digest email** to match the site.
 
 ## Later
 - Per-user email routing (everything goes to `ALERT_TO_EMAIL` today).
 - Verified Resend domain for real delivery.
-- Deploy the web app (Vercel) — then add the deployed URL to Supabase redirect
-  URLs and Google OAuth origins, and publish the Google app.
 - Merch pipeline, multi-source dedup, per-artist location overrides
   (tables already exist in the schema).
