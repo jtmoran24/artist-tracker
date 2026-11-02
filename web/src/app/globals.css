@@ -73,18 +73,21 @@ body::after {
   left: -50%;
   bottom: 0;
   width: 200%;
-  height: 70vh;
+  height: 80vh;
   z-index: -1;
   pointer-events: none;
   background-image:
     linear-gradient(rgba(125, 255, 179, 0.4) 1px, transparent 1px),
     linear-gradient(90deg, rgba(125, 255, 179, 0.4) 1px, transparent 1px);
   background-size: 64px 64px;
-  /* A flatter tilt and longer fade keep the floor visible up to roughly
-     the middle of the screen instead of only the bottom strip. */
-  transform: perspective(600px) rotateX(55deg);
+  /* Perspective is in vh so the floor's far edge lands at the same fraction
+     of the screen at any window height:
+     0.8 * cos(50deg) * 0.66 / (0.66 + 0.8 * sin(50deg)) = 26.66vh.
+     .vapor-skyline sits on that line; change both together. */
+  transform: perspective(66vh) rotateX(50deg);
   transform-origin: bottom;
-  mask-image: linear-gradient(to top, black 55%, transparent 100%);
+  /* Only a light fade, so the lines still reach the forest's base. */
+  mask-image: linear-gradient(to top, black 75%, rgba(0, 0, 0, 0.45) 100%);
   animation: grid-scroll 3s linear infinite;
 }
 
@@ -98,7 +101,9 @@ body::after {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 33vh;
+  /* The grid floor's far edge (see .vapor-grid), less 1px of overlap so no
+     seam shows between the horizon line and the grid. */
+  bottom: calc(26.66vh - 1px);
   height: 30vh;
   z-index: -1;
   pointer-events: none;
